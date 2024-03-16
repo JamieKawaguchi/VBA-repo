@@ -1,0 +1,94 @@
+
+Sub dataanalysis()
+
+    Dim ws As Worksheet
+    Dim LastRow As Long
+    Dim Ticker As String
+    Dim OpeningPrice As Double
+    Dim ClosingPrice As Double
+    Dim YearlyChange As Double
+    Dim PercentChange As Double
+    Dim TotalVolume As Double
+    
+    Dim SummaryRow As Long
+    Dim GreatestIncreaseTicker As String
+    Dim GreatestDecreaseTicker As String
+    Dim GreatestVolumeTicker As String
+    Dim GreatestIncrease As Double
+    Dim GreatestDecrease As Double
+    Dim GreatestVolume As Double
+    Dim i As Integer
+    
+    
+    GreatestIncrease = 0
+    GreatestDecrease = 0
+    GreatestVolume = 0
+
+    For Each ws In ThisWorkbook.Sheets
+        SummaryRow = 2
+        LastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 10).Value = "Yearly Change"
+        ws.Cells(1, 11).Value = "Percent Change"
+        ws.Cells(1, 12).Value = "Total Stock Volume"
+
+        For i = 2 To LastRow
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+                Ticker = ws.Cells(i, 1).Value
+                ClosingPrice = ws.Cells(i, 6).Value
+                TotalVolume = TotalVolume + ws.Cells(i, 7).Value
+                YearlyChange = ClosingPrice - OpeningPrice
+                
+                If OpeningPrice <> 0 Then
+                    PercentChange = (YearlyChange / OpeningPrice) * 100
+                Else
+                    PercentChange = 0
+                End If
+                
+
+                
+                If PercentChange > GreatestIncrease Then
+                    GreatestIncrease = PercentChange
+                    GreatestIncreaseTicker = Ticker
+                End If
+                
+                If PercentChange < GreatestDecrease Then
+                    GreatestDecrease = PercentChange
+                    GreatestDecreaseTicker = Ticker
+                End If
+                
+                If TotalVolume > GreatestVolume Then
+                    GreatestVolume = TotalVolume
+                    GreatestVolumeTicker = Ticker
+                End If
+                
+                SummaryRow = SummaryRow + 1
+                TotalVolume = 0
+                
+            ElseIf ws.Cells(i, 1).Value <> ws.Cells(i - 1, 1).Value Then
+                OpeningPrice = ws.Cells(i, 3).Value
+            Else
+                TotalVolume = TotalVolume + ws.Cells(i, 7).Value
+                
+            End If
+        
+        Next i
+        
+        ws.Cells(2, 15).Value = "Greatest % Increase"
+        ws.Cells(3, 15).Value = "Greatest % Decrease"
+        ws.Cells(4, 15).Value = "Greatest Total Volume"
+        ws.Cells(2, 16).Value = GreatestIncreaseTicker
+        ws.Cells(3, 16).Value = GreatestDecreaseTicker
+        ws.Cells(4, 16).Value = GreatestVolumeTicker
+        ws.Cells(2, 17).Value = GreatestIncrease
+        ws.Cells(3, 17).Value = GreatestDecrease
+        ws.Cells(4, 17).Value = GreatestVolume
+        
+        GreatestIncrease = 0
+        GreatestDecrease = 0
+        GreatestVolume = 0
+        
+    Next ws
+
+End Sub

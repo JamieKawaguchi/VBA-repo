@@ -1,0 +1,52 @@
+Sub dataretrieval()
+    Dim LastRow As Long
+    Dim Ticker As String
+    Dim openprice As Double
+    Dim closeprice As Double
+    Dim yearchange As Double
+    Dim perchange As Double
+    Dim totvol As Double
+    Dim SummaryRow As Long
+    Dim ws As Worksheet
+    Dim i As Integer
+    
+    
+    For Each ws In ThisWorkbook.Sheets
+    
+        SummaryRow = 2
+        LastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 10).Value = "Yearly Change"
+        ws.Cells(1, 11).Value = "Percent Change"
+        ws.Cells(1, 12).Value = "Total Stock Volume"
+        
+        For i = 2 To LastRow
+        
+            If ws.Cells(i + 1, 1) <> ws.Cells(i, 1).Value Then
+                Ticker = ws.Cells(i, 1).Value
+                closeprice = ws.Cells(i, 6).Value
+                totvol = totvol + ws.Cells(i, 7).Value
+                yearchange = closeprice - openprice
+                If openprice <> 0 Then
+                    perchange = (yearchange / openprice) * 100
+                Else
+                    perchange = 0
+                End If
+                
+                ws.Cells(SummaryRow, 9).Value = Ticker
+                ws.Cells(SummaryRow, 10).Value = yearchange
+                ws.Cells(SummaryRow, 11).Value = perchange
+                ws.Cells(SummaryRow, 12).Value = totvol
+                
+                SummaryRow = SummaryRow + 1
+                
+                totvol = 0
+                
+            ElseIf ws.Cells(i, 1) <> ws.Cells(i - 1, 1).Value Then
+                openprice = ws.Cells(i, 3).Value
+            Else
+                totvol = totvol + ws.Cells(i, 7).Value
+            End If
+        Next i
+    Next ws
+End Sub
